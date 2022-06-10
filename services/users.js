@@ -2,52 +2,77 @@ const db = require("./db");
 const helper = require("../helpers");
 const config = require("../config");
 
-async function getMultiple(page = 1) {
-  const offset = helper.getOffset(page, config.listPerPage);
-  const rows = await db.query(
-    `SELECT * FROM users 
-        INNER JOIN role ON users.RoleID = role.RoleID
-        INNER JOIN rolewithrights ON role.RoleID = rolewithrights.RoleID
-        INNER JOIN rights ON rolewithrights.RightsID = rights.RightsID
-        LIMIT ${offset},${config.listPerPage}`
-  );
-  const data = helper.emptyOrRows(rows);
-  const meta = { page };
+const User = db.model("User", {
+  tableName: "users",
+  vehicles() {
+    return this.hasMany(Vehicles, "UserID", "UserID");
+  },
+  role() {
+    return this.belongsTo(Role, "RoleID", "RoleID");
+  },
+  // get rights.UserRight for user using roleID using rolewithrights
+  rights() {
+    return this.hasMany(RoleWithRights, "RoleID", "RoleID");
+  },
+});
 
-  //   structure data so that user can be merged and will have multiple rights
-  const users = data.reduce((acc, user) => {
-    if (!acc[user.UserID]) {
-      acc[user.UserID] = {
-        UserID: user.UserID,
-        Username: user.Username,
-        Role: user.Role,
-        Rights: [],
+// Get roles with and has many rights
+const RoleWithRights = db.model("RoleWithRights", {
+  tableName: "rolewithrights",
+  role() {
+    return this.belongsTo(Role, "RoleID", "RoleID");
+  },
+});
+
+const Role = db.model("Role", {
+  tableName: "role",
+});
+
+const Rights = db.model("Rights", {
+  tableName: "rights",
+});
+
+const Vehicles = db.model("Vehicles", {
+  tableName: "vehicles",
+  user() {
+    return this.belongsTo(User, "UserID", "UserID");
+  },
+});
+
+const getRightName = async (rightsID) => {
+  const right = await Rights.where("RightsID", rightsID).fetch();
+  return right.get("UserRight");
+};
+
+async function getUserWithRights(users) {
+  const usersWithRights = Promise.all(
+    users.map(async (user) => {
+      const rights = await Promise.all(
+        user.toJSON().rights.map((right) => {
+          return getRightName(right.RightsID);
+        })
+      );
+      return {
+        ...user.toJSON(),
+        rights,
       };
-    }
-    acc[user.UserID].Rights.push(user.UserRight);
-    return acc;
-  }, {});
-
-  return { users, meta };
-}
-
-async function create(user) {
-  const result = await db.query(
-    `INSERT INTO users (Mailadresse, Password, RoleID) VALUES ('${user.Mailadresse}', '${user.Password}', '${user.RoleID}')`
+    })
   );
 
-  let message = "Error";
-
-  if (result.affectedRows) {
-    message = "User created successfully";
-    //   get created user
-    result.createdUser = await db.query(
-      `SELECT * FROM users WHERE UserID = '${result.insertId}'`
-    );
-  }
-
-  return { message, result };
+  return usersWithRights;
 }
+
+async function getMultiple(page = 1) {
+  const users = await User.fetchAll({
+    withRelated: ["rights", "role", "vehicles"],
+  });
+
+  const usersWithRights = await getUserWithRights(users);
+
+  return usersWithRights;
+}
+
+async function create(user) {}
 
 module.exports = {
   getMultiple,
