@@ -67,4 +67,20 @@ router.put("/:id", async function (req, res, next) {
   }
 });
 
+/*
+ * DELETE /api/users/:id
+ * Delete a user and all associated data (vehicles, roles, rights)
+ * @returns {Object}
+ * @throws {Error}
+ * @param {Number} id
+ */
+router.delete("/:id", async function (req, res, next) {
+  try {
+    res.json(await users.deleteUser(req.params.id));
+  } catch (err) {
+    console.error(`Error: `, err.message);
+    next(err);
+  }
+});
+
 module.exports = router;

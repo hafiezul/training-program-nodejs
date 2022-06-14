@@ -111,9 +111,29 @@ async function update(id, user) {
   }
 }
 
+async function deleteUser(id) {
+  // create a transaction to delete user and all associated data (vehicles)
+  const transaction = await User.forge({ UserID: id }).destroy();
+
+  if (transaction) {
+    return {
+      status: 200,
+      message: "User deleted successfully",
+      data: null,
+    };
+  } else {
+    return {
+      status: 404,
+      message: "User not deleted",
+      data: null,
+    };
+  }
+}
+
 module.exports = {
   getMultiple,
   create,
   update,
   getById,
+  deleteUser,
 };

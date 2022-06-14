@@ -84,4 +84,20 @@ router.put("/:id", async function (req, res, next) {
   }
 });
 
+/*
+ * DELETE /api/vehicles/:id
+ * Delete a vehicle
+ * @returns {Object}
+ * @throws {Error}
+ * @param {Number} id
+ */
+router.delete("/:id", async function (req, res, next) {
+  try {
+    res.json(await vehicles.deleteVehicle(req.params.id));
+  } catch (err) {
+    console.error(`Error : `, err.message);
+    next(err);
+  }
+});
+
 module.exports = router;

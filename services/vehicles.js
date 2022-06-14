@@ -50,6 +50,8 @@ async function getByUserId(userId, page = 1) {
   return {
     status: 200,
     message: "Vehicles fetched successfully",
+    page: vehicles.pagination.page,
+    totalPages: vehicles.pagination.pageCount,
     data: vehicles,
   };
 }
@@ -110,10 +112,37 @@ async function update(id, vehicle) {
   }
 }
 
+async function deleteVehicle(id) {
+  try {
+    const vehicle = await Vehicle.where("VehicleID", id).destroy();
+
+    if (vehicle) {
+      return {
+        status: 200,
+        message: "Vehicle deleted successfully",
+        data: vehicle,
+      };
+    } else {
+      return {
+        status: 404,
+        message: "Vehicle not deleted",
+        data: null,
+      };
+    }
+  } catch (error) {
+    return {
+      status: 500,
+      message: error.message,
+      data: null,
+    };
+  }
+}
+
 module.exports = {
   getMultiple,
   create,
   getByUserId,
   getById,
   update,
+  deleteVehicle,
 };
