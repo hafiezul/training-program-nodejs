@@ -1,24 +1,7 @@
-const db = require("./db");
-
-// const User = db.model("User", {
-//   tableName: "users",
-//   vehicles() {
-//     return this.hasMany(Vehicles, "UserID");
-//   },
-//   roles() {
-//     return this.belongsTo(Role, "RoleID");
-//   },
-// });
-
-const Vehicles = db.model("Vehicles", {
-  tableName: "vehicles",
-  user() {
-    return this.belongsTo(User, "UserID", "UserID");
-  },
-});
+const Vehicle = require("../models/vehicle");
 
 async function getMultiple(page = 1) {
-  const posts = await Vehicles.fetchPage({
+  const posts = await Vehicle.fetchPage({
     pageSize: 5,
     page: page,
     withRelated: ["user"],

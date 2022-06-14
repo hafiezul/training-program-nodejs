@@ -12,4 +12,4 @@ const knex = require("knex")({
   },
 });
 
-module.exports = require("bookshelf")(knex);
+const bookshelf = (module.exports = require("bookshelf")(knex));
