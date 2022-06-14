@@ -9,7 +9,15 @@ function emptyOrRows(rows) {
   return rows;
 }
 
+function response(status, message, data) {
+  return {
+    totalPages,
+    data,
+  };
+}
+
 module.exports = {
   getOffset,
   emptyOrRows,
+  response,
 };

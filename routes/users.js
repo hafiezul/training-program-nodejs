@@ -18,6 +18,22 @@ router.get("/", async function (req, res, next) {
 });
 
 /*
+ * GET /api/users/:id
+ * Get user by id
+ * @returns {Object}
+ * @throws {Error}
+ * @param {Number} id
+ */
+router.get("/:id", async function (req, res, next) {
+  try {
+    res.json(await users.getById(req.params.id));
+  } catch (err) {
+    console.error(`Error : `, err.message);
+    next(err);
+  }
+});
+
+/*
  * POST /api/users
  * Create a new user
  * @returns {Object}
@@ -28,6 +44,23 @@ router.get("/", async function (req, res, next) {
 router.post("/", async function (req, res, next) {
   try {
     res.json(await users.create(req.body));
+  } catch (err) {
+    console.error(`Error: `, err.message);
+    next(err);
+  }
+});
+
+/*
+ * PUT /api/users/:id
+ * Update a user
+ * @returns {Object}
+ * @throws {Error}
+ * TODO: Add validation for user update
+ * TODO: Hash password
+ */
+router.put("/:id", async function (req, res, next) {
+  try {
+    res.json(await users.update(req.params.id, req.body));
   } catch (err) {
     console.error(`Error: `, err.message);
     next(err);
