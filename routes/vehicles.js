@@ -67,4 +67,21 @@ router.post("/", async function (req, res, next) {
   }
 });
 
+/*
+ * PUT /api/vehicles/:id
+ * Update a vehicle
+ * @returns {Object}
+ * @throws {Error}
+ * @body {Object}
+ * @param {Number} id
+ */
+router.put("/:id", async function (req, res, next) {
+  try {
+    res.json(await vehicles.update(req.params.id, req.body));
+  } catch (err) {
+    console.error(`Error : `, err.message);
+    next(err);
+  }
+});
+
 module.exports = router;
