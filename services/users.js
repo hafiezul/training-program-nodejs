@@ -2,46 +2,11 @@ const db = require("./db");
 const helper = require("../helpers");
 const config = require("../config");
 
-const User = db.model("User", {
-  tableName: "users",
-  idAttribute: "UserID",
-  vehicles() {
-    return this.hasMany(Vehicles, "UserID", "UserID");
-  },
-  role() {
-    return this.belongsTo(Role, "RoleID", "RoleID");
-  },
-  // get rights.UserRight for user using roleID using rolewithrights
-  rights() {
-    return this.hasMany(RoleWithRights, "RoleID", "RoleID");
-  },
-});
-
-// Get roles with and has many rights
-const RoleWithRights = db.model("RoleWithRights", {
-  tableName: "rolewithrights",
-  role() {
-    return this.belongsTo(Role, "RoleID", "RoleID");
-  },
-});
-
-const Role = db.model("Role", {
-  tableName: "role",
-});
-
-const Rights = db.model("Rights", {
-  tableName: "rights",
-});
-
-const Vehicles = db.model("Vehicles", {
-  tableName: "vehicles",
-  user() {
-    return this.belongsTo(User, "UserID", "UserID");
-  },
-});
+const User = require("../models/user");
+const Right = require("../models/right");
 
 const getRightName = async (rightsID) => {
-  const right = await Rights.where("RightsID", rightsID).fetch();
+  const right = await Right.where("RightsID", rightsID).fetch();
   return right.get("UserRight");
 };
 
